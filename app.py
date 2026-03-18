@@ -110,75 +110,18 @@ seleccion = st.sidebar.multiselect("Filtros Médicos:", options=list(pat_map.key
 
 # ... (Todo el código anterior de Sidebar y cálculos se mantiene igual) ...
 
-try:
+try:  # <--- Nivel 0
     with open('./data/platos.json', 'r', encoding='utf-8') as f:
         raw = json.load(f)
     
-    # Obtener tags de la sidebar
-    tags_sel = [pat_map[s] for s in seleccion]
-    es_tp = "tp" in tags_sel
-    t_med = [t for t in tags_sel if t != "tp"]
+    # ... (filtros y pools de platos) ...
 
-    # --- FILTRADO POR CATEGORÍAS ---
-    # Usamos la función que definimos arriba
-    p_des = filtrar_platos(raw['desayunos'], t_med)
-    p_alm = filtrar_platos(raw['comidas'], t_med + (["tp"] if es_tp else []))
-    p_cen = filtrar_platos(raw['comidas'], t_med)
-    p_col = filtrar_platos(raw.get('colaciones', []), t_med)
-
-   if st.button("🚀 Generar Plan Semanal"):
-        if not p_des or not p_alm:
-            st.error("No hay platos con esos filtros.")
-        else:
+    if st.button("🚀 Generar Plan Semanal"): # <--- Nivel 1 (dentro del try)
+        if not p_des or not p_alm: # <--- Nivel 2
+            st.error("No hay platos...")
+        else: # <--- Nivel 2
             cols = st.columns(7)
-            dias = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
-            margen = kcal_final * 0.05
-
-            for i, dia in enumerate(dias):
-                with cols[i]:
-                    st.subheader(dia)
-                    mejor_comb = None
-                    min_dif = float('inf')
-
-                    for _ in range(2000):
-                        # Platos base (siempre presentes)
-                        d = random.choice(p_des)
-                        a = random.choice(p_alm)
-                        m = random.choice(p_des)
-                        c = random.choice(p_cen)
-                        
-                        # Lógica Condicional de Colaciones
-                        if usar_colaciones and p_col:
-                            c1 = random.choice(p_col)
-                            c2 = random.choice(p_col)
-                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal'] + c1['kcal'] + c2['kcal']
-                        else:
-                            c1, c2 = None, None # No existen
-                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal']
-                        
-                        dif = abs(total - kcal_final)
-                        
-                        if dif < min_dif:
-                            min_dif = dif
-                            mejor_comb = (d, c1, a, m, c2, c, total)
-                        
-                        if dif <= margen: break
-                    
-                    rd, rc1, ra, rm, rc2, rc, rt = mejor_comb
-                    
-                    # MOSTRAR RESULTADOS
-                    st.write(f"**D:** {rd['nombre']}")
-                    
-                    if usar_colaciones and rc1: # Solo muestra C1 si se activó
-                        st.caption(f"🔸 C1: {rc1['nombre']} ({rc1['kcal']} kcal)")
-                    
-                    st.success(f"**A:** {ra['nombre']} 🍱" if es_tp else f"**A:** {ra['nombre']}")
-                    st.write(f"**M:** {rm['nombre']}")
-                    
-                    if usar_colaciones and rc2: # Solo muestra C2 si se activó
-                        st.caption(f"🔸 C2: {rc2['nombre']} ({rc2['kcal']} kcal)")
-                    
-                    st.success(f"**C:** {rc['nombre']}")
-                    
-                    # Métrica de control
-                    st.metric("Total", f"{rt} kcal", f"{rt-kcal_final} kcal")
+            # ... resto del código ...
+            for i, dia in enumerate(dias): # <--- Nivel 3
+                with cols[i]: # <--- Nivel 4
+                    # ... lógica de random ...
