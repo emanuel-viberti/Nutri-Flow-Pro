@@ -3,7 +3,11 @@ import pandas as pd
 import json
 import random
 import plotly.express as px
-
+# Función de filtrado profesional
+def filtrar_platos(lista, filtros):
+    if not filtros:
+        return lista
+    return [p for p in lista if all(f in p.get('tags', []) for f in filtros)]
 # Configuración
 st.set_page_config(page_title="Nutri-Flow Pro", layout="wide")
 
