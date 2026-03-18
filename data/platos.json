@@ -533,10 +533,9 @@
     {"nombre": "Tartita de humita (choclo y queso)", "kcal": 410, "p": 12, "c": 58, "l": 15, "tags": ["ls"]},
     {"nombre": "Ñoquis de papa con salsa de tomate", "kcal": 530, "p": 12, "c": 95, "l": 11, "tags": ["ls"]}
     {"nombre": "Ñoquis de papa con salsa de tomate", "kcal": 480, "p": 12, "c": 85, "l": 10, "tags": ["ls"]
-    }
-    
+    } 
   ],
-     "colaciones": [ 
+  "colaciones": [ 
     {"nombre": "1 Manzana mediana", "kcal": 72, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
     {"nombre": "1 Banana chica", "kcal": 90, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
     {"nombre": "1 Yogur descremado", "kcal": 95, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
