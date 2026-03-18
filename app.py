@@ -13,7 +13,9 @@ st.set_page_config(page_title="Nutri-Flow Pro", layout="wide")
 def filtrar_platos(lista, filtros):
     if not filtros:
         return lista
-    return [p for p in lista if all(f in p.get('tags', []) for f in filtros)]
+    # Filtra solo si el plato tiene TODOS los tags seleccionados
+    platos_filtrados = [p for p in lista if all(f in p.get('tags', []) for f in filtros)]
+    return platos_filtrados
 
 def calcular_gramos_macro(kcal_plato, p_prot, p_gras, p_carb):
     """Calcula gramos exactos de macros para una cantidad de kcal específica"""
@@ -21,6 +23,16 @@ def calcular_gramos_macro(kcal_plato, p_prot, p_gras, p_carb):
     g_gras = round((kcal_plato * (p_gras / 100)) / 9, 1)
     g_carb = round((kcal_plato * (p_carb / 100)) / 4, 1)
     return {"p": g_prot, "g": g_gras, "c": g_carb}
+
+# --- MONITOR DE FILTROS ---
+with st.expander("🔍 Verificar disponibilidad de platos con filtros actuales"):
+    st.write(f"🍞 Desayunos/Meriendas: {len(p_des)} disponibles")
+    st.write(f"🍱 Almuerzos: {len(p_alm)} disponibles")
+    st.write(f"🌙 Cenas: {len(p_cen)} disponibles")
+    st.write(f"🍎 Colaciones: {len(p_col)} disponibles")
+    
+    if len(p_des) == 0 or len(p_alm) == 0:
+        st.error("⚠️ ¡OJO! Con estos filtros no hay platos suficientes. El generador va a fallar.")
 
 def generar_pdf(plan_semanal, nombre_paciente, config_nutri):
     pdf = FPDF()
