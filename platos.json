@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "nombre": "Ensalada de Quinoa y Pollo",
+    "tipo": ["almuerzo", "cena"],
+    "perfil": "omnivoro",
+    "apto_para": ["diabetes", "celiaquia"],
+    "kcal": 450,
+    "proteinas": 30,
+    "carbos": 40,
+    "grasas": 12
+  },
+  {
+    "id": 2,
+    "nombre": "Tacos de Legumbres",
+    "tipo": ["almuerzo"],
+    "perfil": "vegano",
+    "apto_para": ["hipertension"],
+    "kcal": 380,
+    "proteinas": 15,
+    "carbos": 55,
+    "grasas": 8
+  }
+]
