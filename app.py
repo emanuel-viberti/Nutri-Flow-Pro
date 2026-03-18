@@ -15,18 +15,37 @@ talla = st.sidebar.number_input("Talla (cm)", value=170)
 edad = st.sidebar.number_input("Edad", value=30)
 actividad = st.sidebar.selectbox("Actividad Física", ["Sedentario", "Ligero", "Moderado", "Intenso"])
 
-# --- SECCIÓN DE MACROS EN SIDEBAR (CORREGIDO) ---
+# --- SECCIÓN DE MACROS EN SIDEBAR (CORREGIDA Y VISUAL) ---
 st.sidebar.markdown("---")
 st.sidebar.header("📊 Distribución de Macros")
-# Aquí permitimos que el usuario mueva los 3, pero el último siempre se ajusta
-p_prot = st.sidebar.slider("% Proteína", 10, 50, 20, key="s_prot")
-p_gras = st.sidebar.slider("% Grasas", 10, 50, 30, key="s_gras")
-p_carb = 100 - p_prot - p_gras # Lógica automática
-st.sidebar.write(f"**Carbohidratos calculados: {p_carb}%**")
+
+# Definimos los sliders. Al mover uno, el cálculo de abajo se actualiza solo.
+p_prot = st.sidebar.slider("% Proteína", 10, 50, 20, step=5)
+p_gras = st.sidebar.slider("% Grasas", 10, 50, 30, step=5)
+
+# EL TRUCO: Carbohidratos es el remanente dinámico
+p_carb = 100 - p_prot - p_gras
 
 if p_carb < 0:
-    st.sidebar.error("⚠️ La suma supera el 100%. Bajá Pro o Gras.")
+    st.sidebar.error("⚠️ La suma supera el 100%. Bajá Proteína o Grasas.")
+    p_carb = 0 # Evitamos errores matemáticos
+else:
+    st.sidebar.success(f"**Carbohidratos: {p_carb}%**")
 
+# --- GRÁFICO VISUAL DE MACROS ---
+# Creamos un pequeño DataFrame para el gráfico
+df_macros_pie = pd.DataFrame({
+    "Macro": ["Proteínas", "Grasas", "Carbohidratos"],
+    "Porcentaje": [p_prot, p_gras, p_carb]
+})
+
+# Dibujamos el gráfico de torta en la sidebar
+import plotly.express as px
+fig_macros = px.pie(df_macros_pie, values='Porcentaje', names='Macro', 
+             color_discrete_sequence=['#1f77b4', '#ff7f0e', '#2ca02c'],
+             hole=0.4)
+fig_macros.update_layout(showlegend=False, height=200, margin=dict(t=0, b=0, l=0, r=0))
+st.sidebar.plotly_chart(fig_macros, use_container_width=True)
 # --- SECCIÓN DE FILTROS EN SIDEBAR ---
 st.sidebar.markdown("---")
 st.sidebar.header("🏥 Filtros Especiales")
