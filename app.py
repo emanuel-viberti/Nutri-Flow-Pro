@@ -3,112 +3,116 @@ import pandas as pd
 import json
 import random
 import plotly.express as px
-# Función de filtrado profesional
+from fpdf import FPDF
+import io
+
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(page_title="Nutri-Flow Pro", layout="wide")
+
+# --- FUNCIONES DE APOYO ---
 def filtrar_platos(lista, filtros):
     if not filtros:
         return lista
     return [p for p in lista if all(f in p.get('tags', []) for f in filtros)]
-# Configuración
-st.set_page_config(page_title="Nutri-Flow Pro", layout="wide")
 
-# --- 1. SIDEBAR: PANEL DE CONTROL ---
-st.sidebar.header("📋 Datos del Paciente")
-nombre = st.sidebar.text_input("Nombre", value="Paciente")
+def calcular_gramos_macro(kcal_plato, p_prot, p_gras, p_carb):
+    """Calcula gramos exactos de macros para una cantidad de kcal específica"""
+    g_prot = round((kcal_plato * (p_prot / 100)) / 4, 1)
+    g_gras = round((kcal_plato * (p_gras / 100)) / 9, 1)
+    g_carb = round((kcal_plato * (p_carb / 100)) / 4, 1)
+    return {"p": g_prot, "g": g_gras, "c": g_carb}
+
+def generar_pdf(plan_semanal, nombre_paciente, config_nutri):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+    
+    # Encabezado
+    pdf.cell(200, 10, f"Plan Nutricional Personalizado: {nombre_paciente}", ln=True, align="C")
+    pdf.set_font("Arial", "", 10)
+    pdf.cell(200, 7, f"Objetivo Diario: {config_nutri['kcal']} kcal | P: {config_nutri['p']}% | G: {config_nutri['g']}% | C: {config_nutri['c']}%", ln=True, align="C")
+    pdf.ln(10)
+
+    for dia, comidas in plan_semanal.items():
+        pdf.set_font("Arial", "B", 12)
+        pdf.set_fill_color(240, 240, 240)
+        pdf.cell(0, 8, f"--- {dia.upper()} ---", ln=True, fill=True, align="C")
+        pdf.ln(2)
+        
+        for tipo, p in comidas.items():
+            if p:
+                # Nombre del plato
+                pdf.set_font("Arial", "B", 11)
+                pdf.cell(0, 6, f"{tipo}: {p['nombre']} ({p['kcal']} kcal)", ln=True)
+                
+                # Cálculo de porción dinámica para el PDF
+                m = calcular_gramos_macro(p['kcal'], config_nutri['p'], config_nutri['g'], config_nutri['c'])
+                pdf.set_font("Arial", "", 10)
+                pdf.set_text_color(50, 50, 50)
+                pdf.cell(0, 5, f"   > Porción: Proteínas {m['p']}g | Grasas {m['g']}g | Carbohidratos {m['c']}g", ln=True)
+                
+                # Receta/Instrucción
+                pdf.set_font("Arial", "I", 9)
+                receta = p.get('receta', 'Consultar preparación según guía de macros.')
+                pdf.multi_cell(0, 5, f"   Instrucción: {receta}")
+                pdf.ln(2)
+        pdf.ln(4)
+        
+    return pdf.output(dest='S').encode('latin-1', 'replace')
+
+# --- SIDEBAR: DATOS Y PARÁMETROS ---
+st.sidebar.header("📋 Perfil del Paciente")
+nombre = st.sidebar.text_input("Nombre completo", value="Paciente Ejemplo")
 sexo = st.sidebar.selectbox("Sexo", ["Femenino", "Masculino"])
 peso_actual = st.sidebar.number_input("Peso Actual (kg)", value=77.0)
 talla = st.sidebar.number_input("Talla (cm)", value=170)
 edad = st.sidebar.number_input("Edad", value=30)
 actividad = st.sidebar.selectbox("Actividad Física", ["Sedentario", "Ligero", "Moderado", "Intenso"])
 
-# --- CÁLCULOS ANTROPOMÉTRICOS ---
-# 1. IMC y Diagnóstico Visual
+# IMC Dinámico
 imc = peso_actual / ((talla/100) ** 2)
-if imc < 18.5: 
-    diag, color = "Bajo Peso", "inverse"
-elif 18.5 <= imc < 25: 
-    diag, color = "Normopeso", "normal"
-elif 25 <= imc < 30: 
-    diag, color = "Sobrepeso", "off"
-else: 
-    diag, color = "Obesidad", "inverse"
+color_imc = "normal" if 18.5 <= imc < 25 else "inverse"
+st.sidebar.metric("IMC Actual", f"{imc:.1f}", delta_color=color_imc)
 
-st.sidebar.metric("IMC Actual", f"{imc:.1f}", diag, delta_color=color)
-
-# 2. Peso Ideal Editable (Base Broca)
+# Peso Ideal Editable
 pi_sugerido = talla - 100 if sexo == "Masculino" else talla - 105
-peso_ideal = st.sidebar.number_input("Peso Ideal Objetivo (kg)", value=float(pi_sugerido), help="Calculado por Broca, pero puedes editarlo.")
+peso_ideal = st.sidebar.number_input("Peso Ideal Objetivo (kg)", value=float(pi_sugerido), help="Base: Fórmula de Broca")
 
-# --- 2. CÁLCULOS DE ENERGÍA (Basados en PESO IDEAL) ---
+# Cálculo de Kcal basado en Peso Ideal
 act_mult = {"Sedentario": 1.2, "Ligero": 1.375, "Moderado": 1.55, "Intenso": 1.725}
-# Usamos peso_ideal aquí para las Kcal recomendadas
 tmb_pi = (10 * peso_ideal) + (6.25 * talla) - (5 * edad) + (5 if sexo == "Masculino" else -161)
 kcal_recomendadas = int(tmb_pi * act_mult[actividad])
 
-# --- SECCIÓN DE MACROS EN SIDEBAR (REORGANIZADA) ---
 st.sidebar.markdown("---")
-st.sidebar.header("📊 Distribución de Macros")
-
-# 1. Primero definimos los que son manuales
+st.sidebar.header("📊 Configuración de Dieta")
 p_prot = st.sidebar.slider("% Proteína", 10, 50, 20, step=5)
 p_gras = st.sidebar.slider("% Grasas", 10, 50, 30, step=5)
-
-# 2. DESPUÉS definimos p_carb para que siempre exista antes de usarse
 p_carb = 100 - p_prot - p_gras
 
-# 3. Ahora sí podemos hacer validaciones con p_carb
 if p_carb < 0:
-    st.sidebar.error("⚠️ La suma supera el 100%. Bajá Proteína o Grasas.")
+    st.sidebar.error("Suma de macros > 100%")
     p_carb = 0
 else:
-    st.sidebar.success(f"**Carbohidratos: {p_carb}%**")
+    st.sidebar.info(f"Carbohidratos: {p_carb}%")
 
-# Gráfico de Torta (Pie Chart)
-df_macros = pd.DataFrame({"Macro": ["P", "G", "C"], "Val": [p_prot, p_gras, p_carb]})
-fig_macros = px.pie(df_macros, values='Val', names='Macro', hole=0.4, height=200)
-fig_macros.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0))
-st.sidebar.plotly_chart(fig_macros, use_container_width=True)
+usar_colaciones = st.sidebar.checkbox("Incluir 2 Colaciones (Plan 6 comidas)", value=True)
 
-# --- OPCIÓN DE COLACIONES ---
-st.sidebar.markdown("---")
-usar_colaciones = st.sidebar.checkbox("¿Incluir Colaciones? (Plan 6 comidas)", value=True)
+# --- MAIN: INTERFAZ PRINCIPAL ---
+st.title(f"Gestor Nutricional DAMyC")
+col_cal1, col_cal2 = st.columns(2)
 
-# --- 4. CUERPO PRINCIPAL ---
-st.title(f"Plan Nutricional: {nombre}")
-
-col1, col2 = st.columns(2)
-with col1:
-    # El valor por defecto ahora viene del cálculo con Peso Ideal
+with col_cal1:
     kcal_final = st.number_input("Calorías Objetivo Diarias", value=kcal_recomendadas)
-    st.caption(f"💡 Sugerencia basada en Peso Ideal ({peso_ideal}kg): {kcal_recomendadas} kcal")
+    st.caption(f"💡 Sugerencia según Peso Ideal: {kcal_recomendadas} kcal")
 
-with col2:
-    st.write(f"**Distribución en Gramos:**")
-    g_p = int((kcal_final*p_prot/100)/4)
-    g_g = int((kcal_final*p_gras/100)/9)
-    g_c = int((kcal_final*p_carb/100)/4)
-    st.info(f"P: {g_p}g | G: {g_g}g | C: {g_c}g")
+with col_cal2:
+    g_totales = calcular_gramos_macro(kcal_final, p_prot, p_gras, p_carb)
+    st.info(f"Totales Diarios: P: {g_totales['p']}g | G: {g_totales['g']}g | C: {g_totales['c']}g")
 
-import streamlit as st
-import pandas as pd
-import json
-import random
-import plotly.express as px
-
-# ... (Configuración inicial, Sidebar de Datos e IMC se mantienen igual) ...
-
-# --- 5. FILTROS Y CARGA DE DATOS ---
-st.sidebar.markdown("---")
-pat_map = {
-    "Diabetes (db)": "db", 
-    "Sin TACC (gf)": "gf", 
-    "Bajo Sodio (ls)": "ls", 
-    "Vegano (vgn)": "vgn", 
-    "Vegetariano (veg)": "veg", 
-    "Almuerzo para Tupper (tp)": "tp"
-}
-seleccion = st.sidebar.multiselect("Filtros Médicos:", options=list(pat_map.keys()))
-
-# ... (Todo el código anterior de Sidebar y cálculos se mantiene igual) ...
+# --- CARGA Y FILTRADO ---
+pat_map = {"Diabetes (db)": "db", "Sin TACC (gf)": "gf", "Bajo Sodio (ls)": "ls", 
+           "Vegano (vgn)": "vgn", "Vegetariano (veg)": "veg", "Tupper (tp)": "tp"}
+seleccion = st.multiselect("Filtros Médicos / Logísticos:", options=list(pat_map.keys()))
 
 try:
     with open('./data/platos.json', 'r', encoding='utf-8') as f:
@@ -123,62 +127,59 @@ try:
     p_cen = filtrar_platos(raw['comidas'], t_med)
     p_col = filtrar_platos(raw.get('colaciones', []), t_med)
 
-    # ESTA LÍNEA ES LA DEL ERROR (Alineala bien a la izquierda del try)
-    if st.button("🚀 Generar Plan Semanal"):
-        if not p_des or not p_alm:
-            st.error("No hay platos con esos filtros.")
-        else:
-            cols = st.columns(7)
-            dias = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
-            margen = kcal_final * 0.05
+    if st.button("🚀 Generar Nuevo Menú Semanal"):
+        plan_temp = {}
+        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        margen = kcal_final * 0.05
 
-            for i, dia in enumerate(dias):
-                with cols[i]:
-                    st.subheader(dia)
-                    mejor_comb = None
-                    min_dif = float('inf')
+        for dia in dias:
+            mejor_dia = None
+            min_dif = float('inf')
 
-                    for _ in range(2000):
-                        d, a, m, c = random.choice(p_des), random.choice(p_alm), random.choice(p_des), random.choice(p_cen)
-                        
-                        if usar_colaciones and p_col:
-                            c1, c2 = random.choice(p_col), random.choice(p_col)
-                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal'] + c1['kcal'] + c2['kcal']
-                        else:
-                            c1, c2 = None, None
-                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal']
-                        
-                        dif = abs(total - kcal_final)
-                        if dif < min_dif:
-                            min_dif, mejor_comb = dif, (d, c1, a, m, c2, c, total)
-                        if dif <= margen: break
-                    
-                    rd, rc1, ra, rm, rc2, rc, rt = mejor_comb
-                    st.write(f"**D:** {rd['nombre']}")
-                    if usar_colaciones and rc1:
-                        st.caption(f"🔸 C1: {rc1['nombre']}")
-                    st.success(f"**A:** {ra['nombre']}")
-                    st.write(f"**M:** {rm['nombre']}")
-                    if usar_colaciones and rc2:
-                        st.caption(f"🔸 C2: {rc2['nombre']}")
-                    st.success(f"**C:** {rc['nombre']}")
-                    st.metric("Total", f"{rt}", f"{rt-kcal_final}")
+            for _ in range(2000):
+                d, a, m, c = random.choice(p_des), random.choice(p_alm), random.choice(p_des), random.choice(p_cen)
+                c1 = random.choice(p_col) if (usar_colaciones and p_col) else None
+                c2 = random.choice(p_col) if (usar_colaciones and p_col) else None
+                
+                total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal']
+                if c1: total += c1['kcal'] + c2['kcal']
+                
+                dif = abs(total - kcal_final)
+                if dif < min_dif:
+                    min_dif = dif
+                    mejor_dia = {"Desayuno": d, "C1": c1, "Almuerzo": a, "Merienda": m, "C2": c2, "Cena": c, "Total": total}
+                if dif <= margen: break
+            
+            plan_temp[dia] = mejor_dia
+
+        st.session_state['plan_activo'] = plan_temp
+        st.session_state['config_pdf'] = {'kcal': kcal_final, 'p': p_prot, 'g': p_gras, 'c': p_carb}
+
+    # --- MOSTRAR MENÚ EN PANTALLA ---
+    if 'plan_activo' in st.session_state:
+        st.markdown("---")
+        cols_pantalla = st.columns(7)
+        plan = st.session_state['plan_activo']
+        
+        for idx, (dia, comidas) in enumerate(plan.items()):
+            with cols_pantalla[idx]:
+                st.subheader(dia)
+                st.write(f"**D:** {comidas['Desayuno']['nombre']}")
+                if comidas['C1']: st.caption(f"🔸C1: {comidas['C1']['nombre']}")
+                st.success(f"**A:** {comidas['Almuerzo']['nombre']}")
+                st.write(f"**M:** {comidas['Merienda']['nombre']}")
+                if comidas['C2']: st.caption(f"🔸C2: {comidas['C2']['nombre']}")
+                st.success(f"**C:** {comidas['Cena']['nombre']}")
+                st.metric("Kcal", f"{comidas['Total']}")
+
+        # --- BOTÓN DE DESCARGA PDF ---
+        pdf_data = generar_pdf(plan, nombre, st.session_state['config_pdf'])
+        st.download_button(
+            label="📥 Descargar Plan Detallado (PDF)",
+            data=pdf_data,
+            file_name=f"Plan_{nombre}.pdf",
+            mime="application/pdf"
+        )
 
 except Exception as e:
-    st.error(f"Error: {e}")
-def obtener_detalles_porcion(kcal_plato, p_prot, p_gras, p_carb):
-    # Calculamos cuántas kcal del plato corresponden a cada macro
-    k_prot = kcal_plato * (p_prot / 100)
-    k_gras = kcal_plato * (p_gras / 100)
-    k_carb = kcal_plato * (p_carb / 100)
-    
-    # Convertimos kcal a gramos
-    g_prot = round(k_prot / 4, 1)
-    g_gras = round(k_gras / 9, 1)
-    g_carb = round(k_carb / 4, 1)
-    
-    return {
-        "texto": f"Proteínas: {g_prot}g | Grasas: {g_gras}g | Carbohidratos: {g_carb}g",
-        "g_prot": g_prot,
-        "g_carb": g_carb
-    }
+    st.error(f"Error: {e}. Revisa la estructura de tu JSON.")
