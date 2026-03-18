@@ -43,7 +43,7 @@ c3.metric("Carbohidratos", f"{p_carb}%")
 
 # 4. CARGA DE PLATOS Y FILTROS
 try:
-    with open('data/platos.json', 'r', encoding='utf-8') as f:
+   with open('./data/platos.json', 'r', encoding='utf-8') as f:
         datos_platos = json.load(f)
     df_platos = pd.DataFrame(datos_platos)
     
