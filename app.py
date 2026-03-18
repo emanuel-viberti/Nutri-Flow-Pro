@@ -95,69 +95,68 @@ pat_map = {
 }
 seleccion = st.sidebar.multiselect("Filtros Médicos:", options=list(pat_map.keys()))
 
+# ... (Todo el código anterior de Sidebar y cálculos se mantiene igual) ...
+
 try:
     with open('./data/platos.json', 'r', encoding='utf-8') as f:
         raw = json.load(f)
     
-    # Extraemos los tags seleccionados
-    tags_seleccionados = [pat_map[s] for s in seleccion]
-    
-    # Separamos el tag de tupper de los médicos
-    es_tupper = "tp" in tags_seleccionados
-    tags_medicos = [t for t in tags_seleccionados if t != "tp"]
+    tags_sel = [pat_map[s] for s in seleccion]
+    es_tp = "tp" in tags_sel
+    t_med = [t for t in tags_sel if t != "tp"]
 
-    # FUNCIÓN DE FILTRADO
-    def filtrar_platos(lista, filtros):
-        return [p for p in lista if all(f in p.get('tags', []) for f in filtros)]
-
-    # APLICACIÓN DE LÓGICA:
-    # Desayunos, Meriendas y Cenas: Solo cumplen filtros médicos (db, gf, veg, etc.)
-    pool_desayunos = filtrar_platos(raw['desayunos'], tags_medicos)
-    pool_cenas = filtrar_platos(raw['comidas'], tags_medicos)
-    
-    # Almuerzos: Cumplen filtros médicos + Tupper (si está activo)
-    tags_almuerzo = tags_medicos + (["tp"] if es_tupper else [])
-    pool_almuerzos = filtrar_platos(raw['comidas'], tags_almuerzo)
+    # Filtrado por categorías
+    p_des = filtrar_platos(raw['desayunos'], t_med)
+    p_alm = filtrar_platos(raw['comidas'], t_med + (["tp"] if es_tp else []))
+    p_cen = filtrar_platos(raw['comidas'], t_med)
+    # Nueva categoría de colaciones (asegurate que esté en tu JSON)
+    p_col = filtrar_platos(raw.get('colaciones', []), t_med) 
 
     st.markdown("---")
-    if st.button("🚀 Generar Menú Semanal"):
-        if not pool_desayunos or not pool_almuerzos:
-            st.error("❌ No hay platos que coincidan con esa combinación de filtros.")
-        else:
-            dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
-            cols = st.columns(7)
-            margen = kcal_final * 0.05
+    if st.button("🚀 Generar Plan de 6 Comidas"):
+        if not p_col:
+            st.warning("⚠️ No encontré la categoría 'colaciones' en tu JSON o no hay platos con esos filtros.")
+            # Si no hay colaciones, usamos desayunos livianos como alternativa
+            p_col = p_des 
 
-            for i, dia in enumerate(dias):
-                with cols[i]:
-                    st.subheader(dia)
-                    mejor_dia = None
-                    menor_dif = float('inf')
+        cols = st.columns(7)
+        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        margen = kcal_final * 0.05
 
-                    for _ in range(2000):
-                        d = random.choice(pool_desayunos)
-                        a = random.choice(pool_almuerzos) # Único con filtro TP
-                        m = random.choice(pool_desayunos)
-                        c = random.choice(pool_cenas)     # Cena libre de TP
-                        
-                        total_kcal = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal']
-                        dif = abs(total_kcal - kcal_final)
-                        
-                        if dif < menor_dif:
-                            menor_dif = dif
-                            mejor_dia = (d, a, m, c, total_kcal)
-                        
-                        if dif <= margen: break
+        for i, dia in enumerate(dias):
+            with cols[i]:
+                st.subheader(dia)
+                mejor_dia = None
+                menor_dif = float('inf')
+
+                for _ in range(3000): # Más intentos porque ahora son 6 platos
+                    d = random.choice(p_des)
+                    c1 = random.choice(p_col)
+                    a = random.choice(p_alm)
+                    m = random.choice(p_des)
+                    c2 = random.choice(p_col)
+                    c = random.choice(p_cen)
                     
-                    rd, ra, rm, rc, rt = mejor_dia
-                    st.markdown(f"**D:** {rd['nombre']}")
-                    # Marcamos visualmente el almuerzo de tupper
-                    txt_a = f"**A:** {ra['nombre']} 🍱" if es_tupper else f"**A:** {ra['nombre']}"
-                    st.success(txt_a)
-                    st.markdown(f"**M:** {rm['nombre']}")
-                    st.success(f"**C:** {rc['nombre']}")
+                    total = d['kcal'] + c1['kcal'] + a['kcal'] + m['kcal'] + c2['kcal'] + c['kcal']
+                    dif = abs(total - kcal_final)
                     
-                    st.metric("Total", f"{rt} kcal", f"{rt-kcal_final} kcal")
+                    if dif < menor_dif:
+                        menor_dif = dif
+                        mejor_dia = (d, c1, a, m, c2, c, total)
+                    if dif <= margen: break
+                
+                rd, rc1, ra, rm, rc2, rc, rt = mejor_dia
+                
+                # Visualización compacta para que entren las 6
+                st.write(f"**D:** {rd['nombre']}")
+                st.caption(f"🔸 **C1:** {rc1['nombre']}")
+                st.success(f"**A:** {ra['nombre']} 🍱" if es_tp else f"**A:** {ra['nombre']}")
+                st.write(f"**M:** {rm['nombre']}")
+                st.caption(f"🔸 **C2:** {rc2['nombre']}")
+                st.success(f"**C:** {rc['nombre']}")
+                
+                st.metric("Total", f"{rt}", f"{rt-kcal_final} kcal")
 
 except Exception as e:
+    st.error(f"Error: {e}")
     st.error(f"Error al cargar menú: {e}")
