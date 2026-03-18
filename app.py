@@ -126,9 +126,9 @@ try:
     p_cen = filtrar_platos(raw['comidas'], t_med)
     p_col = filtrar_platos(raw.get('colaciones', []), t_med)
 
-    if st.button("🚀 Generar Plan Semanal"):
+   if st.button("🚀 Generar Plan Semanal"):
         if not p_des or not p_alm:
-            st.error("No hay platos con esos filtros. Probá quitando alguno.")
+            st.error("No hay platos con esos filtros.")
         else:
             cols = st.columns(7)
             dias = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
@@ -137,35 +137,48 @@ try:
             for i, dia in enumerate(dias):
                 with cols[i]:
                     st.subheader(dia)
-                    # Lógica de búsqueda del mejor match (D, C1, A, M, C2, C)
                     mejor_comb = None
                     min_dif = float('inf')
 
                     for _ in range(2000):
+                        # Platos base (siempre presentes)
                         d = random.choice(p_des)
                         a = random.choice(p_alm)
                         m = random.choice(p_des)
                         c = random.choice(p_cen)
-                        # Colaciones (si no hay, valen 0 kcal)
-                        c1 = random.choice(p_col) if p_col else {'nombre': '-', 'kcal': 0}
-                        c2 = random.choice(p_col) if p_col else {'nombre': '-', 'kcal': 0}
                         
-                        total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal'] + c1['kcal'] + c2['kcal']
+                        # Lógica Condicional de Colaciones
+                        if usar_colaciones and p_col:
+                            c1 = random.choice(p_col)
+                            c2 = random.choice(p_col)
+                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal'] + c1['kcal'] + c2['kcal']
+                        else:
+                            c1, c2 = None, None # No existen
+                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal']
+                        
                         dif = abs(total - kcal_final)
                         
                         if dif < min_dif:
                             min_dif = dif
                             mejor_comb = (d, c1, a, m, c2, c, total)
+                        
                         if dif <= margen: break
                     
                     rd, rc1, ra, rm, rc2, rc, rt = mejor_comb
+                    
+                    # MOSTRAR RESULTADOS
                     st.write(f"**D:** {rd['nombre']}")
-                    st.caption(f"🔸C1: {rc1['nombre']}")
-                    st.success(f"**A:** {ra['nombre']}")
+                    
+                    if usar_colaciones and rc1: # Solo muestra C1 si se activó
+                        st.caption(f"🔸 C1: {rc1['nombre']} ({rc1['kcal']} kcal)")
+                    
+                    st.success(f"**A:** {ra['nombre']} 🍱" if es_tp else f"**A:** {ra['nombre']}")
                     st.write(f"**M:** {rm['nombre']}")
-                    st.caption(f"🔸C2: {rc2['nombre']}")
+                    
+                    if usar_colaciones and rc2: # Solo muestra C2 si se activó
+                        st.caption(f"🔸 C2: {rc2['nombre']} ({rc2['kcal']} kcal)")
+                    
                     st.success(f"**C:** {rc['nombre']}")
-                    st.metric("Total", f"{rt} kcal", f"{rt-kcal_final}")
-
-except Exception as e:
-    st.error(f"Error en la estructura del código: {e}")
+                    
+                    # Métrica de control
+                    st.metric("Total", f"{rt} kcal", f"{rt-kcal_final} kcal")
