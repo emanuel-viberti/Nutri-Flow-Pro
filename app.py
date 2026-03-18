@@ -33,14 +33,35 @@ with col1:
 with col2:
     st.write(f"**Peso Ideal:** {peso_ideal} kg")
 
-# Distribución de Macros
-st.subheader("Distribución de Macronutrientes")
-c1, c2, c3 = st.columns(3)
-p_prot = c1.slider("% Proteína", 10, 40, 20)
-p_gras = c2.slider("% Grasas", 10, 40, 30)
-p_carb = 100 - p_prot - p_gras
-c3.metric("Carbohidratos", f"{p_carb}%")
+# --- BLOQUE DE MACROS CORREGIDO (EDITABLE) ---
+st.subheader("Distribución de Macronutrientes (Editable)")
+st.markdown("Ajustá los porcentajes. El total debe ser 100%.")
 
+col_p, col_g, col_c = st.columns(3)
+
+# Usamos sliders independientes para que el nutri pueda clavarlos donde quiera
+with col_p:
+    p_prot = st.slider("% Proteína", 10, 50, 20, key="prot_slider")
+with col_g:
+    p_gras = st.slider("% Grasas", 10, 50, 30, key="gras_slider")
+with col_c:
+    p_carb = st.slider("% Carbohidratos", 10, 70, 50, key="carb_slider")
+
+total_macros = p_prot + p_gras + p_carb
+
+# Validación visual
+if total_macros != 100:
+    st.error(f"⚠️ La suma de macros es {total_macros}%. Debe ser exactamente 100% para generar el menú.")
+else:
+    st.success("✅ Distribución de macros correcta (100%).")
+    
+    # Cálculo de gramos reales (para el futuro algoritmo)
+    g_prot = (kcal_final * (p_prot/100)) / 4
+    g_gras = (kcal_final * (p_gras/100)) / 9
+    g_carb = (kcal_final * (p_carb/100)) / 4
+    
+    st.write(f"**Gramos:** P: {int(g_prot)}g | G: {int(g_gras)}g | C: {int(g_carb)}g")
+# -----------------------------------------------
 # 4. CARGA DE PLATOS Y FILTROS
 try:
    with open('./data/platos.json', 'r', encoding='utf-8') as f:
