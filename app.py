@@ -166,3 +166,19 @@ try:
 
 except Exception as e:
     st.error(f"Error: {e}")
+def obtener_detalles_porcion(kcal_plato, p_prot, p_gras, p_carb):
+    # Calculamos cuántas kcal del plato corresponden a cada macro
+    k_prot = kcal_plato * (p_prot / 100)
+    k_gras = kcal_plato * (p_gras / 100)
+    k_carb = kcal_plato * (p_carb / 100)
+    
+    # Convertimos kcal a gramos
+    g_prot = round(k_prot / 4, 1)
+    g_gras = round(k_gras / 9, 1)
+    g_carb = round(k_carb / 4, 1)
+    
+    return {
+        "texto": f"Proteínas: {g_prot}g | Grasas: {g_gras}g | Carbohidratos: {g_carb}g",
+        "g_prot": g_prot,
+        "g_carb": g_carb
+    }
