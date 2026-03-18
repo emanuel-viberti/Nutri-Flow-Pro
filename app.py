@@ -41,11 +41,17 @@ tmb_pi = (10 * peso_ideal) + (6.25 * talla) - (5 * edad) + (5 if sexo == "Mascul
 kcal_recomendadas = int(tmb_pi * act_mult[actividad])
 
 # --- 3. SECCIÓN DE MACROS ---
+# En la Sidebar, debajo de los Macros:
 st.sidebar.markdown("---")
-st.sidebar.header("📊 Distribución de Macros")
-p_prot = st.sidebar.slider("% Proteína", 10, 50, 20, step=5)
-p_gras = st.sidebar.slider("% Grasas", 10, 50, 30, step=5)
-p_carb = 100 - p_prot - p_gras # Automático
+usar_colaciones = st.sidebar.checkbox("¿Incluir Colaciones? (Plan 6 comidas)", value=True)
+
+# Luego, en la lógica del botón "Generar Menú":
+if usar_colaciones:
+    # El algoritmo que te pasé antes que busca 6 platos (D, C1, A, M, C2, C)
+    pass
+else:
+    # El algoritmo original de 4 platos (D, A, M, C)
+    pass
 
 if p_carb < 0:
     st.sidebar.error("Suma > 100%. Bajá otros macros.")
