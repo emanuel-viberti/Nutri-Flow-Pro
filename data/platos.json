@@ -533,5 +533,27 @@
     {"nombre": "Pollo al horno con batatas asadas", "kcal": 490, "p": 35, "c": 55, "l": 14, "tags": ["gf", "db", "ls", "dl"]},
     {"nombre": "Tartita de humita (choclo y queso)", "kcal": 410, "p": 12, "c": 58, "l": 15, "tags": ["ls"]},
     {"nombre": "Ñoquis de papa con salsa de tomate", "kcal": 530, "p": 12, "c": 95, "l": 11, "tags": ["ls"]}
-  ]
+  ],
+  "colaciones": [
+    {"nombre": "1 Manzana mediana", "kcal": 72, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Yogur descremado natural", "kcal": 95, "tags": ["db", "gf", "ls", "veg", "tp"]},
+    {"nombre": "Puñado de almendras (15 unidades)", "kcal": 105, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "1 Banana chica", "kcal": 90, "tags": ["gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "2 Galletas de arroz con queso untable", "kcal": 120, "tags": ["gf", "ls", "veg"]},
+    {"nombre": "Bastoncitos de zanahoria (2 unidades)", "kcal": 45, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "1 Huevo duro", "kcal": 78, "tags": ["db", "gf", "ls", "veg", "tp"]},
+    {"nombre": "Gelatina dietética con trozos de fruta", "kcal": 60, "tags": ["db", "gf", "ls", "tp"]},
+    {"nombre": "2 Nueces mariposa", "kcal": 65, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Queso magro (30g)", "kcal": 85, "tags": ["db", "gf", "ls", "veg", "tp"]},
+    {"nombre": "1 Naranja", "kcal": 62, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Mix de semillas (1 cda sopera)", "kcal": 55, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Medio aguacate pequeño", "kcal": 130, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Taza de pochoclo natural (sin azúcar)", "kcal": 90, "tags": ["gf", "ls", "vgn", "veg"]},
+    {"nombre": "1 Pera", "kcal": 95, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Rollito de jamón cocido y queso", "kcal": 110, "tags": ["db", "gf", "ls", "tp"]},
+    {"nombre": "Edamames hervidos (media taza)", "kcal": 120, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "Tomates cherry (10 unidades)", "kcal": 35, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]},
+    {"nombre": "1 Barrita de cereal integral (sin azúcar)", "kcal": 115, "tags": ["ls", "vgn", "veg", "tp"]},
+    {"nombre": "Hummus con apio", "kcal": 140, "tags": ["db", "gf", "ls", "vgn", "veg", "tp"]}
+]
 }
