@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import json
+import random
 
 # Configuración de página
 st.set_page_config(page_title="Nutri-Flow Pro", layout="wide")
@@ -12,7 +13,13 @@ sexo = st.sidebar.selectbox("Sexo", ["Femenino", "Masculino"])
 peso = st.sidebar.number_input("Peso (kg)", value=70.0)
 talla = st.sidebar.number_input("Talla (cm)", value=170)
 edad = st.sidebar.number_input("Edad", value=30)
-actividad = st.sidebar.select_slider("Actividad Física", options=["Sedentario", "Ligero", "Moderado", "Intenso"])
+
+# AF desplegable hacia abajo (selectbox)
+actividad = st.sidebar.selectbox(
+    "Nivel de Actividad Física", 
+    options=["Sedentario", "Ligero", "Moderado", "Intenso"],
+    help="Sedentario (x1.2), Ligero (x1.375), Moderado (x1.55), Intenso (x1.725)"
+)
 
 # Cálculos automáticos
 act_mult = {"Sedentario": 1.2, "Ligero": 1.375, "Moderado": 1.55, "Intenso": 1.725}
@@ -27,60 +34,54 @@ with col_k:
     kcal_final = st.number_input("Calorías Objetivo (Kcal)", value=kcal_base)
 with col_p:
     pi_base = talla - 105 if sexo == "Femenino" else talla - 100
-    peso_ideal = st.number_input("Peso Ideal (kg)", value=float(pi_base))
+    peso_ideal = st.sidebar.number_input("Peso Ideal (kg)", value=float(pi_base))
 
-# --- 3. MACROS EDITABLES (Solución al 50% clavado) ---
+# --- 3. MACROS EDITABLES ---
 st.subheader("📊 Distribución de Macronutrientes")
 cm1, cm2, cm3 = st.columns(3)
-
 with cm1:
     p_prot = st.slider("% Proteína", 10, 50, 20)
 with cm2:
     p_gras = st.slider("% Grasas", 10, 50, 30)
 with cm3:
-    # El carbohidrato ahora es el resto, pero se muestra dinámicamente
     p_carb = 100 - p_prot - p_gras
     st.metric("Carbohidratos (Resto)", f"{p_carb}%")
 
-if p_carb < 10:
-    st.warning("⚠️ Los carbohidratos son muy bajos. Ajustá Proteína o Grasas.")
-
-# --- 4. CARGA DE DATOS (Solución al error de Length) ---
+# --- 4. CARGA DE DATOS ---
 try:
     with open('./data/platos.json', 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
     
-    # Combinamos desayunos y comidas en una sola lista para la tabla
-    lista_total = []
-    for plato in raw_data.get("desayunos", []):
-        plato["categoria"] = "Desayuno/Merienda"
-        lista_total.append(plato)
-    for plato in raw_data.get("comidas", []):
-        plato["categoria"] = "Almuerzo/Cena"
-        lista_total.append(plato)
-    
-    df_platos = pd.DataFrame(lista_total)
+    desayunos_list = raw_data.get("desayunos", [])
+    comidas_list = raw_data.get("comidas", [])
     
     st.markdown("---")
-    st.subheader("🥗 Buscador de Platos")
     
-    # Filtros
-    c_f1, c_f2 = st.columns(2)
-    with c_f1:
-        cat_sel = st.selectbox("Filtrar por Momento", ["Todos", "Desayuno/Merienda", "Almuerzo/Cena"])
-    with c_f2:
-        tag_sel = st.text_input("Buscar por Tag (ej: db, gf, vgn)")
-
-    # Lógica de filtrado
-    df_filtrado = df_platos.copy()
-    if cat_sel != "Todos":
-        df_filtrado = df_filtrado[df_filtrado['categoria'] == cat_sel]
-    if tag_sel:
-        df_filtrado = df_filtrado[df_filtrado['tags'].apply(lambda x: tag_sel.lower() in [t.lower() for t in x])]
-
-    st.dataframe(df_filtrado, use_container_width=True)
+    # --- 5. GENERADOR DE MENÚ SEMANAL (DAMyC) ---
+    st.header("📅 Menú Semanal Sugerido")
+    
+    if st.button("🚀 Generar Nuevo Menú"):
+        dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        
+        # Creamos columnas para que el menú se vea como una agenda
+        cols_menu = st.columns(7)
+        
+        for i, dia in enumerate(dias):
+            with cols_menu[i]:
+                st.subheader(dia)
+                
+                # Seleccionamos platos al azar de tu lista de 500
+                d = random.choice(desayunos_list)['nombre'] if desayunos_list else "Sin datos"
+                a = random.choice(comidas_list)['nombre'] if comidas_list else "Sin datos"
+                m = random.choice(desayunos_list)['nombre'] if desayunos_list else "Sin datos"
+                c = random.choice(comidas_list)['nombre'] if comidas_list else "Sin datos"
+                
+                st.info(f"**D:** {d}")
+                st.success(f"**A:** {a}")
+                st.info(f"**M:** {m}")
+                st.success(f"**C:** {c}")
+    else:
+        st.write("Hacé clic en el botón para armar la semana.")
 
 except Exception as e:
     st.error(f"Error al procesar el JSON: {e}")
-
-st.button("🔄 Generar Menú Semanal")
