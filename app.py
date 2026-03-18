@@ -29,9 +29,15 @@ MAPEO_FILTROS = {
         "Keto": "keto",
         "Paleo": "paleo"
     },
-    "Logística": {
-        "Apto Tupper / Microondas": "tp"
-    }
+   # En el diccionario MAPEO_FILTROS
+"Logística": {
+    "Almuerzo en Trabajo": "at"
+}
+
+# En la lógica de generación del plan (dentro del bucle de los 1000 intentos):
+# Solo filtramos por 'at' si es el Almuerzo
+p_alm_filtrados = filtrar_platos(p_alm, [MAPEO_FILTROS["Logística"]["Almuerzo en Trabajo"]]) if "Almuerzo en Trabajo" in f_log else p_alm
+# La cena (c) seguirá usando la lista p_alm normal sin el filtro 'at'
 }
 
 # --- 2. FUNCIONES LÓGICAS ---
