@@ -110,18 +110,59 @@ seleccion = st.sidebar.multiselect("Filtros Médicos:", options=list(pat_map.key
 
 # ... (Todo el código anterior de Sidebar y cálculos se mantiene igual) ...
 
-try:  # <--- Nivel 0
+try:
     with open('./data/platos.json', 'r', encoding='utf-8') as f:
         raw = json.load(f)
     
-    # ... (filtros y pools de platos) ...
+    tags_sel = [pat_map[s] for s in seleccion]
+    es_tp = "tp" in tags_sel
+    t_med = [t for t in tags_sel if t != "tp"]
 
-    if st.button("🚀 Generar Plan Semanal"): # <--- Nivel 1 (dentro del try)
-        if not p_des or not p_alm: # <--- Nivel 2
-            st.error("No hay platos...")
-        else: # <--- Nivel 2
+    p_des = filtrar_platos(raw['desayunos'], t_med)
+    p_alm = filtrar_platos(raw['comidas'], t_med + (["tp"] if es_tp else []))
+    p_cen = filtrar_platos(raw['comidas'], t_med)
+    p_col = filtrar_platos(raw.get('colaciones', []), t_med)
+
+    # ESTA LÍNEA ES LA DEL ERROR (Alineala bien a la izquierda del try)
+    if st.button("🚀 Generar Plan Semanal"):
+        if not p_des or not p_alm:
+            st.error("No hay platos con esos filtros.")
+        else:
             cols = st.columns(7)
-            # ... resto del código ...
-            for i, dia in enumerate(dias): # <--- Nivel 3
-                with cols[i]: # <--- Nivel 4
-                    # ... lógica de random ...
+            dias = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
+            margen = kcal_final * 0.05
+
+            for i, dia in enumerate(dias):
+                with cols[i]:
+                    st.subheader(dia)
+                    mejor_comb = None
+                    min_dif = float('inf')
+
+                    for _ in range(2000):
+                        d, a, m, c = random.choice(p_des), random.choice(p_alm), random.choice(p_des), random.choice(p_cen)
+                        
+                        if usar_colaciones and p_col:
+                            c1, c2 = random.choice(p_col), random.choice(p_col)
+                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal'] + c1['kcal'] + c2['kcal']
+                        else:
+                            c1, c2 = None, None
+                            total = d['kcal'] + a['kcal'] + m['kcal'] + c['kcal']
+                        
+                        dif = abs(total - kcal_final)
+                        if dif < min_dif:
+                            min_dif, mejor_comb = dif, (d, c1, a, m, c2, c, total)
+                        if dif <= margen: break
+                    
+                    rd, rc1, ra, rm, rc2, rc, rt = mejor_comb
+                    st.write(f"**D:** {rd['nombre']}")
+                    if usar_colaciones and rc1:
+                        st.caption(f"🔸 C1: {rc1['nombre']}")
+                    st.success(f"**A:** {ra['nombre']}")
+                    st.write(f"**M:** {rm['nombre']}")
+                    if usar_colaciones and rc2:
+                        st.caption(f"🔸 C2: {rc2['nombre']}")
+                    st.success(f"**C:** {rc['nombre']}")
+                    st.metric("Total", f"{rt}", f"{rt-kcal_final}")
+
+except Exception as e:
+    st.error(f"Error: {e}")
