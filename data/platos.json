@@ -532,5 +532,31 @@
     {"nombre": "Pollo al horno con batatas asadas", "kcal": 490, "p": 35, "c": 55, "l": 14, "tags": ["gf", "db", "ls", "dl"]},
     {"nombre": "Tartita de humita (choclo y queso)", "kcal": 410, "p": 12, "c": 58, "l": 15, "tags": ["ls"]},
     {"nombre": "Ñoquis de papa con salsa de tomate", "kcal": 530, "p": 12, "c": 95, "l": 11, "tags": ["ls"]}
+  ],
+  },
+    {"nombre": "Ñoquis de papa con salsa de tomate", "kcal": 480, "p": 12, "c": 85, "l": 10, "tags": ["ls"]}
+  ],
+  "colaciones": [
+    {"nombre": "1 Manzana mediana", "kcal": 72, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Banana chica", "kcal": 90, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Yogur descremado", "kcal": 95, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Huevo duro", "kcal": 78, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "amr", "asj"]},
+    {"nombre": "2 Nueces mariposa", "kcal": 65, "tags": ["gf", "db2", "lf", "hta", "at", "ahv", "amr", "asj"]},
+    {"nombre": "10 Almendras", "kcal": 70, "tags": ["gf", "db2", "lf", "hta", "at", "ahv", "amr", "asj"]},
+    {"nombre": "Queso Port Salut Magro (30g)", "kcal": 75, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Pera", "kcal": 60, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Mandarina", "kcal": 45, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Gelatina dietética con trozos de fruta", "kcal": 60, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "3 Galletitas de arroz con queso blanco", "kcal": 110, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Bastoncitos de zanahoria con hummus", "kcal": 90, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Naranja", "kcal": 65, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Pickles y aceitunas (5 unidades)", "kcal": 50, "tags": ["gf", "db2", "lf", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Puñado de pochoclo natural (sin azúcar)", "kcal": 80, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Medio aguacate (palta) pequeño", "kcal": 120, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Tomatitos cherry (10 unidades)", "kcal": 35, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Rodaja de melón o sandía", "kcal": 50, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Vaso de leche descremada fría", "kcal": 90, "tags": ["gf", "db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "3 Galletitas de agua con mermelada light", "kcal": 120, "tags": ["db2", "lf", "hta", "at", "afn", "ahv", "amr", "asj"]}
   ]
+}
 }
