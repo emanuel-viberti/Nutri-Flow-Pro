@@ -40,30 +40,33 @@ act_mult = {"Sedentario": 1.2, "Ligero": 1.375, "Moderado": 1.55, "Intenso": 1.7
 tmb_pi = (10 * peso_ideal) + (6.25 * talla) - (5 * edad) + (5 if sexo == "Masculino" else -161)
 kcal_recomendadas = int(tmb_pi * act_mult[actividad])
 
-# --- 3. SECCIÓN DE MACROS ---
-# En la Sidebar, debajo de los Macros:
+# --- SECCIÓN DE MACROS EN SIDEBAR (REORGANIZADA) ---
 st.sidebar.markdown("---")
-usar_colaciones = st.sidebar.checkbox("¿Incluir Colaciones? (Plan 6 comidas)", value=True)
+st.sidebar.header("📊 Distribución de Macros")
 
-# Luego, en la lógica del botón "Generar Menú":
-if usar_colaciones:
-    # El algoritmo que te pasé antes que busca 6 platos (D, C1, A, M, C2, C)
-    pass
-else:
-    # El algoritmo original de 4 platos (D, A, M, C)
-    pass
+# 1. Primero definimos los que son manuales
+p_prot = st.sidebar.slider("% Proteína", 10, 50, 20, step=5)
+p_gras = st.sidebar.slider("% Grasas", 10, 50, 30, step=5)
 
+# 2. DESPUÉS definimos p_carb para que siempre exista antes de usarse
+p_carb = 100 - p_prot - p_gras
+
+# 3. Ahora sí podemos hacer validaciones con p_carb
 if p_carb < 0:
-    st.sidebar.error("Suma > 100%. Bajá otros macros.")
+    st.sidebar.error("⚠️ La suma supera el 100%. Bajá Proteína o Grasas.")
     p_carb = 0
 else:
-    st.sidebar.info(f"Carbohidratos: {p_carb}%")
+    st.sidebar.success(f"**Carbohidratos: {p_carb}%**")
 
-# Gráfico de Torta
-df_pie = pd.DataFrame({"Macro": ["Prot", "Gras", "Carb"], "Val": [p_prot, p_gras, p_carb]})
-fig = px.pie(df_pie, values='Val', names='Macro', hole=0.4, height=180, color_discrete_sequence=px.colors.qualitative.Safe)
-fig.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0))
-st.sidebar.plotly_chart(fig, use_container_width=True)
+# Gráfico de Torta (Pie Chart)
+df_macros = pd.DataFrame({"Macro": ["P", "G", "C"], "Val": [p_prot, p_gras, p_carb]})
+fig_macros = px.pie(df_macros, values='Val', names='Macro', hole=0.4, height=200)
+fig_macros.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0))
+st.sidebar.plotly_chart(fig_macros, use_container_width=True)
+
+# --- OPCIÓN DE COLACIONES ---
+st.sidebar.markdown("---")
+usar_colaciones = st.sidebar.checkbox("¿Incluir Colaciones? (Plan 6 comidas)", value=True)
 
 # --- 4. CUERPO PRINCIPAL ---
 st.title(f"Plan Nutricional: {nombre}")
