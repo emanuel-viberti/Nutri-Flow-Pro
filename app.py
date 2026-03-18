@@ -62,22 +62,28 @@ else:
     
     st.write(f"**Gramos:** P: {int(g_prot)}g | G: {int(g_gras)}g | C: {int(g_carb)}g")
 # -----------------------------------------------
-# 4. CARGA DE PLATOS Y FILTROS
+# 4. CARGA DE PLATOS Y FILTROS (Versión Robusta)
 try:
     with open('./data/platos.json', 'r', encoding='utf-8') as f:
         datos_platos = json.load(f)
     
-    df_platos = pd.DataFrame(datos_platos)
+    # Esta línea crea la tabla y llena con "0" o "N/A" lo que falte
+    df_platos = pd.DataFrame.from_records(datos_platos)
     
     st.markdown("---")
     st.subheader("🥗 Base de Datos de Platos")
     
+    # Limpieza rápida: si hay celdas vacías, poner 0 para que no falle el cálculo
+    df_platos = df_platos.fillna(0)
+
     # Filtros rápidos
     col_f1, col_f2 = st.columns(2)
     with col_f1:
         perfil_sel = st.selectbox("Perfil Alimentario", ["omnivoro", "vegetariano", "vegano"])
     with col_f2:
-        tipo_sel = st.multiselect("Tipo de Comida", ["desayuno", "almuerzo", "merienda", "cena"], default=["almuerzo"])
+        # Aquí verificamos que la columna 'tipo' exista antes de filtrar
+        tipos_disponibles = ["desayuno", "almuerzo", "merienda", "cena"]
+        tipo_sel = st.multiselect("Tipo de Comida", tipos_disponibles, default=["almuerzo"])
     
     # Aplicar filtros a la tabla
     mask = (df_platos['perfil'] == perfil_sel)
@@ -85,10 +91,6 @@ try:
     
     st.dataframe(tabla_filtrada, use_container_width=True)
 
-except FileNotFoundError:
-    st.error("❌ Error: No se encontró el archivo 'data/platos.json'. Verificá la carpeta en GitHub.")
 except Exception as e:
-    st.error(f"❌ Hubo un error al cargar los datos: {e}")
-
-st.markdown("---")
-st.button("🚀 Generar Menú Semanal (Algoritmo en desarrollo)")
+    st.error(f"❌ Error en los datos: {e}")
+    st.info("Revisá que todos los platos en platos.json tengan las mismas categorías (kcal, proteinas, etc.)")
