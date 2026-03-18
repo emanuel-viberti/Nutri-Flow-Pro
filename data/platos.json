@@ -17,12 +17,24 @@
     {"nombre": "Pechuga de pollo con calabaza asada", "kcal": 380, "tags": ["gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "amr", "asj", "tp"]},
     {"nombre": "Ensalada de lentejas y vegetales", "kcal": 410, "tags": ["vgn", "veg", "gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "amr", "asj", "tp"]},
     {"nombre": "Filete de merluza al limón con puré", "kcal": 350, "tags": ["gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "asj"]},
-    {"nombre": "Wok de tofu y brócoli", "kcal": 320, "tags": ["vgn", "veg", "gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "amr", "tp"]}
+    {"nombre": "Wok de tofu y brócoli", "kcal": 320, "tags": ["vgn", "veg", "gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "amr", "tp"]},
+    {"nombre": "Pasta integral con pesto de albahaca", "kcal": 450, "tags": ["veg", "db2", "dlp", "hta", "lf", "ahv", "amr", "asj", "tp"]},
+    {"nombre": "Milanesa de berenjena con ensalada", "kcal": 330, "tags": ["veg", "db2", "dlp", "hta", "lf", "afn", "amr", "asj", "tp"]},
+    {"nombre": "Guiso de garbanzos y espinaca", "kcal": 390, "tags": ["vgn", "veg", "gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "amr", "asj", "tp"]},
+    {"nombre": "Salmón a la plancha con espárragos", "kcal": 480, "tags": ["gf", "db2", "dlp", "hta", "lf", "afn", "ahv", "asj"]},
+    {"nombre": "Risotto de hongos y parmesano", "kcal": 420, "tags": ["veg", "gf", "db2", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Tacos de soja texturizada y palta", "kcal": 370, "tags": ["vgn", "veg", "db2", "dlp", "hta", "lf", "afn", "ahv", "amr", "tp"]}
   ],
   "colaciones": [
-    {"nombre": "Bastones de zanahoria (2 unidades)", "kcal": 45, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta"]},
-    {"nombre": "1 Huevo duro", "kcal": 78, "tags": ["db2", "gf", "lf", "veg", "tp", "dlp", "hta"]},
+    {"nombre": "Bastones de zanahoria (2 unidades)", "kcal": 45, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Huevo duro", "kcal": 78, "tags": ["db2", "gf", "lf", "veg", "tp", "dlp", "hta", "afn", "amr", "asj"]},
+    {"nombre": "Gelatina dietética con fruta", "kcal": 60, "tags": ["db2", "gf", "lf", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
     {"nombre": "2 Nueces mariposa", "kcal": 65, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta", "ahv", "amr", "asj"]},
-    {"nombre": "Queso magro (30g)", "kcal": 85, "tags": ["db2", "gf", "lf", "veg", "tp", "dlp", "hta"]}
+    {"nombre": "Queso magro (30g)", "kcal": 85, "tags": ["db2", "gf", "lf", "veg", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Naranja", "kcal": 62, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Mix de semillas (1 cda)", "kcal": 55, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Medio aguacate pequeño", "kcal": 130, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "Taza de pochoclo natural", "kcal": 90, "tags": ["gf", "lf", "vgn", "veg", "dlp", "hta", "afn", "ahv", "amr", "asj"]},
+    {"nombre": "1 Pera", "kcal": 57, "tags": ["db2", "gf", "lf", "vgn", "veg", "tp", "dlp", "hta", "afn", "ahv", "amr", "asj"]}
   ]
 }
