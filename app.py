@@ -64,19 +64,31 @@ else:
 # -----------------------------------------------
 # 4. CARGA DE PLATOS Y FILTROS
 try:
-   with open('./data/platos.json', 'r', encoding='utf-8') as f:
+    with open('./data/platos.json', 'r', encoding='utf-8') as f:
         datos_platos = json.load(f)
+    
     df_platos = pd.DataFrame(datos_platos)
     
     st.markdown("---")
-    st.subheader("Base de Datos de Platos")
-    perfil = st.selectbox("Filtrar por Perfil", ["omnivoro", "vegetariano", "vegano"])
+    st.subheader("🥗 Base de Datos de Platos")
     
-    # Mostrar tabla filtrada
-    tabla_filtrada = df_platos[df_platos['perfil'] == perfil]
-    st.dataframe(tabla_filtrada)
+    # Filtros rápidos
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        perfil_sel = st.selectbox("Perfil Alimentario", ["omnivoro", "vegetariano", "vegano"])
+    with col_f2:
+        tipo_sel = st.multiselect("Tipo de Comida", ["desayuno", "almuerzo", "merienda", "cena"], default=["almuerzo"])
+    
+    # Aplicar filtros a la tabla
+    mask = (df_platos['perfil'] == perfil_sel)
+    tabla_filtrada = df_platos[mask]
+    
+    st.dataframe(tabla_filtrada, use_container_width=True)
 
+except FileNotFoundError:
+    st.error("❌ Error: No se encontró el archivo 'data/platos.json'. Verificá la carpeta en GitHub.")
 except Exception as e:
-    st.error("Primero debés crear el archivo data/platos.json en GitHub")
+    st.error(f"❌ Hubo un error al cargar los datos: {e}")
 
-st.button("Generar Menú Semanal (Próximamente)")
+st.markdown("---")
+st.button("🚀 Generar Menú Semanal (Algoritmo en desarrollo)")
